@@ -1,38 +1,79 @@
 import { $ } from "bun";
+import { cwd } from "process";
+import { parseArgs } from "util";
 
-// get the current commit SHA
-const sha = removeEmptyLines(await $`git rev-parse HEAD`.text());
+const { values } = parseArgs({
+  args: Bun.argv,
+  options: {
+    all: {
+      type: "boolean",
+    },
+    cwd: {
+      type: "string",
+      default: cwd(),
+    },
+  },
+  strict: false,
+});
 
-console.log(`Current commit SHA: ${sha}`);
+$.cwd(values.cwd as string);
 
-const diff = $`git diff -U0 ${sha}^ ${sha}`.lines();
+async function getDiffForSha(sha: string) {
+  const diff = $`git diff -U0 ${sha}^ ${sha}`.lines();
 
-const files: FileReport[] = [];
-let currentFile: string | null = null;
-for await (const line of diff) {
-  //   console.log(line);
+  const files: FileReport[] = [];
+  let currentFile: string | null = null;
+  for await (const line of diff) {
+    //   console.log(line);
 
-  if (line.startsWith("+++")) {
-    currentFile = line.split(" ")[1].replace("b/", "");
-    continue;
+    if (line.startsWith("+++")) {
+      currentFile = line.split(" ")[1].replace("b/", "");
+      continue;
+    }
+
+    if (!line.startsWith("@@") || !currentFile) {
+      continue;
+    }
+
+    const [_p, before, now, _q] = line.split(" ");
+
+    const changedLines = getChangedLines(before, now);
+    const file = files.find((x) => x.file === currentFile);
+    if (file) {
+      file.changes.push(...changedLines);
+    } else {
+      files.push({ file: currentFile, changes: changedLines });
+    }
   }
-
-  if (!line.startsWith("@@") || !currentFile) {
-    continue;
-  }
-
-  const [_p, before, now, _q] = line.split(" ");
-
-  const changedLines = getChangedLines(before, now);
-  const file = files.find((x) => x.file === currentFile);
-  if (file) {
-    file.changes.push(...changedLines);
-  } else {
-    files.push({ file: currentFile, changes: changedLines });
-  }
+  return files;
 }
 
-await uploadChanges(sha, files);
+if (values.all) {
+  // go through the history and upload all the changes
+  const history = $`git rev-list HEAD`.lines();
+  let successful = 0;
+  for await (const commit of history) {
+    if (!commit || commit === "" || commit.length < 10) {
+      continue;
+    }
+
+    try {
+      const files = await getDiffForSha(commit);
+      await uploadChanges(commit, files);
+      successful++;
+    } catch (error) {
+      console.error("failed to upload changes for commit " + commit);
+    }
+  }
+
+  console.log(`successfully uploaded ${successful} commits`);
+} else {
+  // get the current commit SHA
+  const sha = removeEmptyLines(await $`git rev-parse HEAD`.text());
+
+  const files = await getDiffForSha(sha);
+  await uploadChanges(sha, files);
+}
 
 function removeEmptyLines(text: string) {
   return text.split("\n").filter(Boolean).join("");
@@ -86,7 +127,6 @@ async function uploadChanges(sha: string, files: FileReport[]) {
   const endpoint = process.env.UPLOAD_URL;
   const project = process.env.BITBUCKET_REPO_SLUG;
   const url = `${endpoint}/${project}/${sha}`;
-  console.log(`Uploading changes to ${url}`);
 
   await fetch(url, {
     method: "POST",
