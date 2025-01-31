@@ -140,7 +140,9 @@ function updateVis() {
       // remove from the data
       data = data.filter((x) => x.file !== d.file);
       updateVis();
-    });
+    })
+    .append("title")
+    .text((d) => `${d.type}: ${d.value}`);
 }
 
 fetchProjects();
