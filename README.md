@@ -14,20 +14,32 @@ The server will be available at `http://localhost:8080`. Its using an sqlite dat
 
 ## Indexing
 
+### Setup
+
+Copy the `.env.example` file to `.env` and update the values.
+
+```bash
+UPLOAD_URL=http://localhost:8080
+```
+
 The indexer is using [bun](https://bun.sh) to run the typescript code. To install bun run:
 
 ```bash
 curl -s https://bun.sh | bash
 ```
 
+### Usage
+
 To index the latest commit:
 
 ```bash
-bun run index.ts --cwd /path/to/repo
+bun run index.ts --cwd /path/to/repo --project 'project-name'
 ```
 
 To index all commits:
 
 ```bash
-bun run index.ts --cwd /path/to/repo --all
+bun run index.ts --cwd /path/to/repo --all --project 'project-name'
 ```
+
+If no project name is provided the environment variable `BITBUCKET_REPO_SLUG` will be used.

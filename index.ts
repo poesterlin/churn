@@ -12,6 +12,10 @@ const { values } = parseArgs({
       type: "string",
       default: cwd(),
     },
+    project: {
+      type: "string",
+      default: process.env.BITBUCKET_REPO_SLUG,
+    },
   },
   strict: false,
 });
@@ -125,8 +129,7 @@ function getChangedLines(before: string, after: string): Change[] {
 
 async function uploadChanges(sha: string, files: FileReport[]) {
   const endpoint = process.env.UPLOAD_URL;
-  const project = process.env.BITBUCKET_REPO_SLUG;
-  const url = `${endpoint}/${project}/${sha}`;
+  const url = `${endpoint}/${values.project}/${sha}`;
 
   await fetch(url, {
     method: "POST",
