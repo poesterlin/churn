@@ -9,10 +9,17 @@
 
 <body>
     <h1>Code Churn</h1>
+    <p>
+        This is a visualization of the code churn of a project. Code churn is the number of lines of code <span
+            style="color: #A7C957;">added</span>, <span style="color: #E76F51;">modified</span>, and <span
+            style="color: #dc0d0d;">deleted</span> in a project file over time. <br>If there is some file you want to ignore, just click on one of its bars.
+    </p>
     <div>
+        <label for="projects">Select a project:</label>
         <select id="projects"></select>
     </div>
 
+    <legend>Churn in Number of Lines</legend>
     <svg width="600" height="400"></svg>
 
     <script src="./frontend/visualize.ts"></script>

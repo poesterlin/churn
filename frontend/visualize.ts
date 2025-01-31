@@ -89,7 +89,7 @@ function updateVis() {
   const colors = d3
     .scaleOrdinal()
     .domain(["added", "modified", "deleted"])
-    .range(["green", "orange", "red"]);
+    .range(["#A7C957", "#E76F51", "#B22222"]);
 
   const svg = d3
     .select("svg")
@@ -142,7 +142,7 @@ function updateVis() {
       updateVis();
     })
     .append("title")
-    .text((d) => `${d.type}: ${d.value}`);
+    .text((d) => `${d.type}: ${d.value} Lines`);
 }
 
 fetchProjects();
