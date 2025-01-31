@@ -2,6 +2,9 @@
 
 Tool to analyze code churn in a git repository. Consists of a server and and indexing tool. The server is a REST API that serves the churn data. The indexing tool can be run in a cli to keep the data up to date or index a repository all at once.
 
+<!-- image-->
+![Churn](./docs/churn.png)
+
 ## Server
 
 Run the server with:
@@ -43,3 +46,9 @@ bun run index.ts --cwd /path/to/repo --all --project 'project-name'
 ```
 
 If no project name is provided the environment variable `BITBUCKET_REPO_SLUG` will be used.
+
+## TODOS: 
+
+- [ ] Add auth
+- [ ] Add more data
+- [ ] Add filters
