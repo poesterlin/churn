@@ -65,6 +65,8 @@ if (values.all) {
       const files = await getDiffForSha(commit);
       await uploadChanges(commit, files);
       successful++;
+
+      process.stdout.write(`\t${successful}: commit ${commit} uploaded\r`)
     } catch (error) {
       console.error("failed to upload changes for commit " + commit);
     }
@@ -105,9 +107,6 @@ function getChangedLines(before: string, after: string): Change[] {
   const linesAdded = lengthAfter - lengthBefore;
   const linesRemoved = lengthBefore - lengthAfter;
   const linesKept = lengthAfter - Math.max(linesAdded, 0);
-
-  //   console.log({ startBefore, lengthBefore, startAfter, lengthAfter });
-  //   console.log({ linesAdded, linesKept, linesRemoved });
 
   // add all the modified lines to the array
   for (let i = 0; i < linesKept; i++) {
