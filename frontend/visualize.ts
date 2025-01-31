@@ -41,17 +41,25 @@ async function fetchProjects() {
   });
 }
 
+let data: {
+  file: string;
+  added_count: number;
+  modified_count: number;
+  deleted_count: number;
+  type: string;
+}[] = [];
+
 async function fetchStats(project: string) {
   const response = await fetch(`/${project}`);
-  const data: {
-    file: string;
-    added_count: number;
-    modified_count: number;
-    deleted_count: number;
-    type: string;
-  }[] = await response.json();
+  data = await response.json();
 
-  const width = 900;
+  updateVis();
+}
+
+function updateVis() {
+  d3.select("svg").selectAll("*").remove();
+
+  const width = 3000;
   const height = 400;
   const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
@@ -114,9 +122,9 @@ async function fetchStats(project: string) {
     .attr("transform", (d) => `translate(${xScale(d.file)}, 0)`) // Position groups
     .selectAll("rect")
     .data((d) => [
-      { value: d.added_count, type: "added" },
-      { value: d.modified_count, type: "modified" },
-      { value: d.deleted_count, type: "deleted" },
+      { value: d.added_count, type: "added", file: d.file },
+      { value: d.modified_count, type: "modified", file: d.file },
+      { value: d.deleted_count, type: "deleted", file: d.file },
     ])
     .enter()
     .append("rect")
@@ -127,7 +135,12 @@ async function fetchStats(project: string) {
     .attr("y", (d) => yScale(d.value))
     .attr("width", xSubgroupScale.bandwidth()) // Prevent overlap
     .attr("height", (d) => height - yScale(d.value))
-    .attr("fill", (d) => colors(d.type) as string);
+    .attr("fill", (d) => colors(d.type) as string)
+    .on("pointerdown", (e, d) => {
+      // remove from the data
+      data = data.filter((x) => x.file !== d.file);
+      updateVis();
+    });
 }
 
 fetchProjects();

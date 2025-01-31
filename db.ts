@@ -8,6 +8,15 @@ export async function initialize() {
       "CREATE TABLE IF NOT EXISTS changes (project TEXT, sha TEXT, file TEXT, line INTEGER, type TEXT)"
     )
     .run();
+
+  // create index for faster lookups
+  await db
+    .query(
+      "CREATE INDEX IF NOT EXISTS idx_changes_project_sha ON changes (project, sha)"
+    )
+    .run();
+
+  db.exec("PRAGMA journal_mode = WAL;");
 }
 
 export async function writeJsonToDb(
@@ -47,7 +56,7 @@ export async function getStats(project: string) {
     FROM changes 
     WHERE project = ? 
     GROUP BY file 
-    ORDER BY (added_count + modified_count + deleted_count) DESC 
+    ORDER BY deleted_count DESC 
     LIMIT 30;`
   );
   return stats.all(project);
