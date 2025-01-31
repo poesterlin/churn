@@ -31,7 +31,9 @@ for await (const line of diff) {
   }
 }
 
-console.log(JSON.stringify(files, null, 2));
+// write to a file
+Bun.write("changes.json", JSON.stringify(files, null, 2));
+console.log("Changes saved to changes.json");
 
 function removeEmptyLines(text: string) {
   return text.split("\n").filter(Boolean).join("");
