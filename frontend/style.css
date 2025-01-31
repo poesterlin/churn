@@ -12,6 +12,10 @@ svg {
   font-family: Arial, sans-serif;
 }
 
+.bold {
+  font-weight: bold;
+}
+
 .bar.added {
   fill: green;
 }

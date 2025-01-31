@@ -39,7 +39,16 @@ export async function writeJsonToDb(
 
 export async function getStats(project: string) {
   const stats = db.query(
-    `SELECT file, type, COUNT(*) as count FROM changes WHERE project = ? GROUP BY file, type ORDER BY count DESC LIMIT 30`
+    `SELECT 
+        file, 
+        SUM(CASE WHEN type = 'added' THEN 1 ELSE 0 END) AS added_count,
+        SUM(CASE WHEN type = 'modified' THEN 1 ELSE 0 END) AS modified_count,
+        SUM(CASE WHEN type = 'removed' THEN 1 ELSE 0 END) AS deleted_count
+    FROM changes 
+    WHERE project = ? 
+    GROUP BY file 
+    ORDER BY (added_count + modified_count + deleted_count) DESC 
+    LIMIT 30;`
   );
   return stats.all(project);
 }
