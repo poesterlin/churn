@@ -28,7 +28,8 @@ async function fetchProjects() {
 async function fetchStats(e: Event) {
   const project = (e.target as HTMLSelectElement).value;
   const response = await fetch(`/${project}`);
-  const data: { file: string; count: number }[] = await response.json();
+  const data: { file: string; count: number; type: string }[] =
+    await response.json();
 
   const width = 600;
   const height = 400;
@@ -40,7 +41,7 @@ async function fetchStats(e: Event) {
     .scaleBand()
     .domain(data.map((d) => d.file))
     .range([margin.left, width - margin.right])
-    .padding(0.1);
+    .padding(0.3);
 
   const y = d3
     .scaleLinear()
@@ -69,7 +70,8 @@ async function fetchStats(e: Event) {
     .data(data)
     .enter()
     .append("rect")
-    .attr("class", "bar")
+    .attr("style", (d) => `z-index: ${Math.ceil(y(d.count))}`)
+    .attr("class", (d) => [d.type, "bar"].join(" "))
     .attr("x", (d) => x(d.file) ?? 0)
     .attr("y", (d) => y(d.count))
     .attr("height", (d) => y(0) - y(d.count))

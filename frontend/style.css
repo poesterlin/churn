@@ -1,0 +1,16 @@
+.axis-label {
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+.bar.added {
+  fill: green;
+}
+
+.bar.modified {
+  fill: orange;
+}
+
+.bar.removed {
+  fill: red;
+}

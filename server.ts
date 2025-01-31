@@ -33,8 +33,6 @@ app.post("/:project/:sha", async (c) => {
   return c.json({ success: true });
 });
 
-console.log("Server running on http://localhost:8080");
-
 export default {
   port: 8080,
   fetch: app.fetch,
