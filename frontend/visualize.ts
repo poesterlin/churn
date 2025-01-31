@@ -22,12 +22,21 @@ async function fetchProjects() {
     projectSelect.appendChild(option);
   }
 
-  if (projects.length > 0) {
-    fetchStats(projects[0].project);
+  let loadProject = projects[0].project;
+  if (localStorage.getItem("project")) {
+    loadProject = localStorage.getItem("project");
+  }
+
+  if (loadProject) {
+    fetchStats(loadProject);
   }
 
   projectSelect.addEventListener("change", (e) => {
     const project = (e.target as HTMLSelectElement).value;
+
+    // store in local storage
+    localStorage.setItem("project", project);
+
     fetchStats(project);
   });
 }
@@ -111,7 +120,10 @@ async function fetchStats(project: string) {
     ])
     .enter()
     .append("rect")
-    .attr("x", (d) => xSubgroupScale(d.type)! + xSubgroupScale.bandwidth() / 2 - 12) // Position bars within group
+    .attr(
+      "x",
+      (d) => xSubgroupScale(d.type)! + xSubgroupScale.bandwidth() / 2 - 12
+    ) // Position bars within group
     .attr("y", (d) => yScale(d.value))
     .attr("width", xSubgroupScale.bandwidth()) // Prevent overlap
     .attr("height", (d) => height - yScale(d.value))
