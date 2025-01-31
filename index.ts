@@ -1,5 +1,6 @@
 import { $ } from "bun";
 
+// get the current commit SHA
 const sha = removeEmptyLines(await $`git rev-parse HEAD`.text());
 
 console.log(`Current commit SHA: ${sha}`);
@@ -31,9 +32,7 @@ for await (const line of diff) {
   }
 }
 
-// write to a file
-Bun.write("changes.json", JSON.stringify(files, null, 2));
-console.log("Changes saved to changes.json");
+await uploadChanges(sha, files);
 
 function removeEmptyLines(text: string) {
   return text.split("\n").filter(Boolean).join("");
@@ -62,8 +61,8 @@ function getChangedLines(before: string, after: string): Change[] {
   const linesRemoved = lengthBefore - lengthAfter;
   const linesKept = lengthAfter - Math.max(linesAdded, 0);
 
-//   console.log({ startBefore, lengthBefore, startAfter, lengthAfter });
-//   console.log({ linesAdded, linesKept, linesRemoved });
+  //   console.log({ startBefore, lengthBefore, startAfter, lengthAfter });
+  //   console.log({ linesAdded, linesKept, linesRemoved });
 
   // add all the modified lines to the array
   for (let i = 0; i < linesKept; i++) {
@@ -83,12 +82,17 @@ function getChangedLines(before: string, after: string): Change[] {
   return lines;
 }
 
-interface FileReport {
-  file: string;
-  changes: Change[];
-}
+async function uploadChanges(sha: string, files: FileReport[]) {
+  const endpoint = process.env.UPLOAD_URL;
+  const project = process.env.BITBUCKET_REPO_SLUG;
+  const url = `${endpoint}/${project}/${sha}`;
+  console.log(`Uploading changes to ${url}`);
 
-interface Change {
-  line: number;
-  type: "added" | "removed" | "modified";
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(files),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }
