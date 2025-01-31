@@ -15,15 +15,3 @@ svg {
 .bold {
   font-weight: bold;
 }
-
-.bar.added {
-  fill: green;
-}
-
-.bar.modified {
-  fill: orange;
-}
-
-.bar.removed {
-  fill: red;
-}
