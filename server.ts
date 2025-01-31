@@ -1,13 +1,15 @@
 import { Hono } from "hono";
 import { serveStatic } from 'hono/bun'
-import { getProjects, getStats, writeJsonToDb } from "./db";
+import { getProjects, getStats, initialize, writeJsonToDb } from "./db";
 
 // build the frontend
 await Bun.build({
     entrypoints: ["./index.html"],
     outdir: "./dist",
     minify: true,
-});  
+});
+
+await initialize();
 
 const app = new Hono();
 

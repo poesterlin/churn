@@ -1,26 +1,21 @@
 import { Database } from "bun:sqlite";
-export const db = new Database("mydb.sqlite", { strict: true });
 
-const existsQuery = db.prepare(
-  "SELECT name FROM sqlite_master WHERE type='table' AND name='changes'"
-);
+export const db = new Database("./db/mydb.sqlite", { strict: false });
 
-const exists = await existsQuery.run();
-
-if (!exists) {
-  await db.run(
-    "CREATE TABLE changes (project TEXT, sha TEXT, file TEXT, line INTEGER, type TEXT)"
+export async function initialize() {
+  await db.query(
+    "CREATE TABLE IF NOT EXISTS changes (project TEXT, sha TEXT, file TEXT, line INTEGER, type TEXT)"
   );
 }
 
-const hasSha = db.prepare(
-  "SELECT COUNT(*) as count FROM changes WHERE project = ? AND sha = ?"
-);
 export async function writeJsonToDb(
   project: string,
   sha: string,
   json: FileReport[]
 ) {
+  const hasSha = db.query(
+    "SELECT COUNT(*) as count FROM changes WHERE project = ? AND sha = ?"
+  );
   // check if the sha already exists in the database
   const { count } = (await hasSha.get(project, sha)) as { count: number };
 
@@ -39,13 +34,15 @@ export async function writeJsonToDb(
     }
   }
 }
-const stats = db.prepare(
-  `SELECT file, type, COUNT(*) as count FROM changes WHERE project = ? GROUP BY file, type ORDER BY count DESC`
-);
+
 export async function getStats(project: string) {
+  const stats = db.query(
+    `SELECT file, type, COUNT(*) as count FROM changes WHERE project = ? GROUP BY file, type ORDER BY count DESC LIMIT 30`
+  );
   return stats.all(project);
 }
-const projectsQuery = db.prepare("SELECT DISTINCT project FROM changes");
+
 export async function getProjects() {
+  const projectsQuery = db.query("SELECT DISTINCT project FROM changes");
   return projectsQuery.all();
 }

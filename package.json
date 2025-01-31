@@ -2,6 +2,10 @@
   "name": "churn",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun run --watch server.ts",
+    "index": "bun index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
