@@ -22,11 +22,17 @@ async function fetchProjects() {
     projectSelect.appendChild(option);
   }
 
-  projectSelect.addEventListener("change", (e) => fetchStats(e));
+  if (projects.length > 0) {
+    fetchStats(projects[0].project);
+  }
+
+  projectSelect.addEventListener("change", (e) => {
+    const project = (e.target as HTMLSelectElement).value;
+    fetchStats(project);
+  });
 }
 
-async function fetchStats(e: Event) {
-  const project = (e.target as HTMLSelectElement).value;
+async function fetchStats(project: string) {
   const response = await fetch(`/${project}`);
   const data: { file: string; count: number; type: string }[] =
     await response.json();

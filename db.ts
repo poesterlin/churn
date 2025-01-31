@@ -3,9 +3,11 @@ import { Database } from "bun:sqlite";
 export const db = new Database("./db/mydb.sqlite", { strict: false });
 
 export async function initialize() {
-  await db.query(
-    "CREATE TABLE IF NOT EXISTS changes (project TEXT, sha TEXT, file TEXT, line INTEGER, type TEXT)"
-  );
+  await db
+    .query(
+      "CREATE TABLE IF NOT EXISTS changes (project TEXT, sha TEXT, file TEXT, line INTEGER, type TEXT)"
+    )
+    .run();
 }
 
 export async function writeJsonToDb(
