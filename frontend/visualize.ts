@@ -43,9 +43,11 @@ async function fetchStats(e: Event) {
     .range([margin.left, width - margin.right])
     .padding(0.3);
 
+  const max = d3.max(data, (d) => d.count) ?? 0;
+
   const y = d3
     .scaleLinear()
-    .domain([0, d3.max(data, (d) => d.count) ?? 0])
+    .domain([0, max])
     .nice()
     .range([height - margin.bottom, margin.top]);
 
@@ -70,7 +72,7 @@ async function fetchStats(e: Event) {
     .data(data)
     .enter()
     .append("rect")
-    .attr("style", (d) => `z-index: ${Math.ceil(y(d.count))}`)
+    .attr("style", (d) => `z-index: ${Math.ceil(y(max - d.count))}`)
     .attr("class", (d) => [d.type, "bar"].join(" "))
     .attr("x", (d) => x(d.file) ?? 0)
     .attr("y", (d) => y(d.count))

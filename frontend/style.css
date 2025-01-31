@@ -1,3 +1,12 @@
+html {
+  font-family: Arial, sans-serif;
+}
+
+svg {
+  overflow: visible;
+  margin-bottom: 30svh;
+}
+
 .axis-label {
   font-size: 14px;
   font-family: Arial, sans-serif;
