@@ -8,7 +8,7 @@ function assert(condition: any, message: any): asserts condition {
   }
 }
 
-async function fetchProjects() {
+async function init() {
   const response = await fetch("/projects");
   projects = await response.json();
 
@@ -39,6 +39,8 @@ async function fetchProjects() {
 
     fetchStats(project);
   });
+
+  document.getElementById("download")?.addEventListener("click", downloadSVG);
 }
 
 let data: {
@@ -145,4 +147,18 @@ function updateVis() {
     .text((d) => `${d.type}: ${d.value} Lines`);
 }
 
-fetchProjects();
+init();
+
+function downloadSVG() {
+  const svg = document.querySelector("svg");
+  assert(svg, "svg not found");
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+  const svgUrl = URL.createObjectURL(svgBlob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = svgUrl;
+  downloadLink.download = "visualization.svg";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}

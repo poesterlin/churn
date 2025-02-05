@@ -39,3 +39,11 @@ svg {
 .bold {
   font-weight: bold;
 }
+
+button#download {
+  margin-top: 2rem;
+  padding: 0.5rem;
+  background: #191919;
+  color: #f4e1d2;
+  border: 1px solid #f4e1d2;
+}
